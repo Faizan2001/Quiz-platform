@@ -1,0 +1,128 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Take Quiz - {{ attempt.category.name }}{% endblock %}
+{% block header %}{{ attempt.category.name }} Quiz{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quiz-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+    }
+    
+    .question-area {
+        background: #f8f9fa;
+        padding: 30px;
+        border-radius: 15px;
+        min-height: 400px;
+    }
+    
+    .review-sidebar {
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 20px;
+        position: sticky;
+        top: 20px;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .question-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .question-box {
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        transition: transform 0.2s;
+    }
+    
+    .question-box:hover {
+        transform: scale(1.1);
+    }
+    
+    .question-box.answered {
+        background: #28a745;
+        color: white;
+    }
+    
+    .question-box.unanswered {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .question-box.flagged {
+        border: 3px solid #ffc107;
+    }
+    
+    .option-item {
+        background: white;
+        border: 2px solid #ddd;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .option-item:hover {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+    
+    .option-item input[type="radio"],
+    .option-item input[type="checkbox"] {
+        margin-right: 10px;
+        transform: scale(1.3);
+    }
+    
+    @media (max-width: 768px) {
+        .quiz-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <!-- Question Area (HTMX will load questions here) -->
+    <div class="question-area" id="question-container">
+        {% if current_answer %}
+            {% include 'quiz/question_view.html' with answer=current_answer question=current_answer.question has_selection=current_answer.selected_options.count %}
+        {% endif %}
+    </div>
+    
+    <!-- Review Sidebar -->
+    <div class="review-sidebar">
+        <h3 style="margin-bottom: 15px;">Review Panel</h3>
+        <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+            <span style="background: #28a745; color: white; padding: 3px 10px; border-radius: 5px;">Green</span> = Answered<br>
+            <span style="background: #dc3545; color: white; padding: 3px 10px; border-radius: 5px; margin-top: 5px; display: inline-block;">Red</span> = Unanswered<br>
+            <span style="border: 2px solid #ffc107; padding: 3px 10px; border-radius: 5px; margin-top: 5px; display: inline-block;">Yellow Border</span> = Flagged
+        </p>
+        
+        <div class="question-grid" id="review-panel">
+            {% for answer in answers %}
+            <div class="question-box {% if answer.selected_options.count > 0 %}answered{% else %}unanswered{% endif %} {% if answer.is_flagged %}flagged{% endif %}"
+                 hx-get="{% url 'question_view' attempt.id answer.id %}"
+                 hx-target="#question-container"
+                 hx-swap="innerHTML">
+                {{ forloop.counter }}
+            </div>
+            {% endfor %}
+        </div>
+        <p style="margin-top: 20px; font-size: 14px; color: #666; text-align: center;">
+            Use the numbered boxes to navigate. The Submit button appears on the last question.
+        </p>
+    </div>
+</div>
+{% endblock %}

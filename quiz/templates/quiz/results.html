@@ -1,0 +1,85 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Quiz Results - {{ attempt.category.name }}{% endblock %}
+{% block header %}Quiz Results{% endblock %}
+
+{% block extra_css %}
+<style>
+  .summary { text-align: center; margin-bottom: 40px; }
+  .summary-box {
+    display: inline-block; padding: 30px; border-radius: 20px; border: 3px solid;
+  }
+  .summary-passed { background: #d4edda; border-color: #28a745; color: #155724; }
+  .summary-failed { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+  .actions { margin-bottom: 30px; text-align: center; }
+  .result-title { margin-bottom: 20px; }
+  .result-card { border: 2px solid; border-radius: 15px; padding: 25px; margin-bottom: 20px; }
+  .result-card.correct { background: #d4edda; border-color: #28a745; }
+  .result-card.incorrect { background: #f8d7da; border-color: #dc3545; }
+  .result-head { display: flex; align-items: center; margin-bottom: 15px; gap: 12px; }
+  .status { font-weight: bold; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="summary">
+  <div class="summary-box {% if attempt.passed %}summary-passed{% else %}summary-failed{% endif %}">
+    <h1 style="font-size: 3rem; margin-bottom: 10px;">{{ attempt.score }}%</h1>
+    <h2>
+      {% if attempt.passed %}
+        Congratulations! You Passed!
+      {% else %}
+        Keep Trying! You'll Get It Next Time!
+      {% endif %}
+    </h2>
+    <p style="margin-top: 15px; font-size: 18px;">
+      Category: <strong>{{ attempt.category.name }}</strong><br>
+      Passing Score: {{ attempt.passing_score }}%
+    </p>
+  </div>
+  
+  <div class="actions">
+    <a href="{% url 'dashboard' %}" class="btn">Back to Dashboard</a>
+    <a href="{% url 'start_quiz' attempt.category.id %}" class="btn btn-success">Retake Quiz</a>
+  </div>
+</div>
+
+<h2 class="result-title">Detailed Results</h2>
+
+{% for result in results %}
+  <div class="result-card {% if result.is_correct %}correct{% else %}incorrect{% endif %}">
+    <div class="result-head">
+      <span class="status">{% if result.is_correct %}Correct{% else %}Incorrect{% endif %}</span>
+      <h3 style="flex: 1; color: #333;">{{ result.question.text }}</h3>
+    </div>
+
+    {% if not result.is_correct %}
+      <div style="margin-bottom: 15px;">
+        <strong>Your Answer:</strong>
+        <ul style="margin-top: 10px; margin-left: 20px;">
+          {% for option in result.selected_options %}
+            <li>{{ option.text }}</li>
+          {% empty %}
+            <li style="font-style: italic;">No answer selected</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <strong>Correct Answer:</strong>
+        <ul style="margin-top: 10px; margin-left: 20px;">
+          {% for option in result.correct_options %}
+            <li style="font-weight: bold;">{{ option.text }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+{% endfor %}
+
+<div style="text-align: center; margin-top: 40px;">
+  <a href="{% url 'dashboard' %}" class="btn" style="font-size: 18px;">
+    Return to Dashboard
+  </a>
+  </div>
+{% endblock %}

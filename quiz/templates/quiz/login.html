@@ -1,0 +1,36 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Login - Quiz Platform{% endblock %}
+{% block header %}Welcome Back!{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto;">
+    <h2 style="text-align: center; margin-bottom: 30px;">Login to Your Account</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Username:</label>
+            <input type="text" name="username" required 
+                   style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Password:</label>
+            <input type="password" name="password" required 
+                   style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%; font-size: 18px;">
+            Login
+        </button>
+    </form>
+    
+    <div style="margin-top: 30px; padding: 20px; background: #e7f3ff; border-radius: 10px;">
+        <p style="text-align: center; margin-bottom: 10px;"><strong>Demo Credentials:</strong></p>
+        <p style="text-align: center;">Demo user: <code>demo</code> / <code>demo123</code></p>
+        <p style="text-align: center;">Admin: use your superuser credentials</p>
+    </div>
+</div>
+{% endblock %}

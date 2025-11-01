@@ -1,0 +1,65 @@
+<div>
+    <h2 style="margin-bottom: 20px; color: #333;">{{ question.text }}</h2>
+    
+    <form hx-post="{% url 'question_view' attempt.id answer.id %}"
+          hx-trigger="change"
+          hx-target="#question-container"
+          hx-swap="innerHTML">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 30px;">
+            {% for option in question.options.all %}
+            <label class="option-item">
+                {% if question.question_type == 'single' %}
+                <input type="radio" name="options" value="{{ option.id }}" 
+                       {% if option in answer.selected_options.all %}checked{% endif %}>
+                {% else %}
+                <input type="checkbox" name="options" value="{{ option.id }}"
+                       {% if option in answer.selected_options.all %}checked{% endif %}>
+                {% endif %}
+                {{ option.text }}
+            </label>
+            {% endfor %}
+        </div>
+    </form>
+    
+    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px; align-items: center;">
+        {% if prev_id %}
+        <button class="btn btn-secondary"
+                hx-get="{% url 'question_view' attempt.id prev_id %}"
+                hx-target="#question-container" hx-swap="innerHTML">
+            Previous
+        </button>
+        {% endif %}
+
+        {% if next_id %}
+        <button class="btn"
+                hx-get="{% url 'question_view' attempt.id next_id %}"
+                hx-target="#question-container" hx-swap="innerHTML"
+                {% if not has_selection %}disabled{% endif %}>
+            Next
+        </button>
+        {% endif %}
+
+        <button class="btn"
+                hx-post="{% url 'toggle_flag' answer.id %}"
+                hx-swap="none"
+                style="background: #ffc107;">
+            {% if answer.is_flagged %}Unflag{% else %}Flag for Review{% endif %}
+        </button>
+
+        {% if is_last %}
+        <form method="post" action="{% url 'submit_quiz' attempt.id %}" style="margin-left: auto;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success"
+                    onclick="return confirm('Submit quiz now? You cannot change answers after submission.')">
+                Submit Quiz
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    
+    <p style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 10px; color: #004085;">
+        <strong>Tip:</strong> Use Next/Previous or the numbered boxes in the review panel to navigate. Submit appears on the last question.
+    </p>
+</div>

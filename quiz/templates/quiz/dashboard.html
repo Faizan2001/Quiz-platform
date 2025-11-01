@@ -1,0 +1,67 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Dashboard - Quiz Platform{% endblock %}
+{% block header %}Quiz Dashboard{% endblock %}
+{% block subheader %}<p style="margin-top: 10px; opacity: 0.9;">Choose a category and test your knowledge!</p>{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 40px;">
+    <h2 style="margin-bottom: 20px;">Available Categories</h2>
+    
+    {% if categories %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+        {% for category in categories %}
+        <div style="border: 2px solid #e0e0e0; border-radius: 15px; padding: 25px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); transition: transform 0.2s;">
+            <h3 style="margin-bottom: 15px; color: #333;">{{ category.name }}</h3>
+            <p style="color: #666; margin-bottom: 20px; min-height: 60px;">{{ category.description|default:"Test your knowledge in this category!" }}</p>
+            <a href="{% url 'start_quiz' category.id %}" class="btn" style="width: 100%; text-align: center;">
+                Start Quiz
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px;">
+        <p style="font-size: 18px; color: #666;">No categories available yet. Please contact admin.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if recent_attempts %}
+<div>
+    <h2 style="margin-bottom: 20px;">Recent Quiz Attempts</h2>
+    <div style="background: #f8f9fa; border-radius: 10px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #667eea; color: white;">
+                    <th style="padding: 15px; text-align: left;">Category</th>
+                    <th style="padding: 15px; text-align: center;">Score</th>
+                    <th style="padding: 15px; text-align: center;">Result</th>
+                    <th style="padding: 15px; text-align: center;">Date</th>
+                    <th style="padding: 15px; text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attempt in recent_attempts %}
+                <tr style="border-bottom: 1px solid #dee2e6;">
+                    <td style="padding: 15px;">{{ attempt.category.name }}</td>
+                    <td style="padding: 15px; text-align: center; font-weight: bold;">{{ attempt.score }}%</td>
+                    <td style="padding: 15px; text-align: center;">
+                        {% if attempt.passed %}
+                        <span style="background: #28a745; color: white; padding: 5px 15px; border-radius: 20px;">Passed</span>
+                        {% else %}
+                        <span style="background: #dc3545; color: white; padding: 5px 15px; border-radius: 20px;">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px; text-align: center;">{{ attempt.completed_at|date:"M d, Y" }}</td>
+                    <td style="padding: 15px; text-align: center;">
+                        <a href="{% url 'quiz_results' attempt.id %}" style="color: #667eea; text-decoration: none; font-weight: bold;">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
